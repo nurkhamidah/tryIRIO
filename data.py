@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+import pyreadr as pr
 
 df_pdrb = pd.read_csv("data_pdrb.csv", sep = ",")
 df_pdrb_nasional = df_pdrb.groupby(['jenis_pdrb', 'nama_komp']).agg({"nilai_jt": "sum"}).reset_index()
@@ -30,3 +31,6 @@ def plotNasionalBerdasarkanJenisPDRB(jenis_pdrb, nama_sektor, n):
             orientation='h'))
     fig.update_layout(barmode='stack')
     return(data, fig)
+
+
+df_eksim = pr.read_r('data_eksim_ap.rds')[None]

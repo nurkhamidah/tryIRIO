@@ -24,6 +24,7 @@ if page == "Tentang":
 ## ------------------------------ USE ------------------------------
 if page == "Ekspor-Impor":
     st.write("Ini lagi di ", page)
+    st.dataframe(df_eksim, use_container_width=True)
     
 
 ## ------------------------------ SUPPLY ------------------------------
