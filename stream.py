@@ -13,21 +13,35 @@ st.set_page_config(
 
 page = st_navbar(["Home", "Tentang", "Ekspor-Impor", "PDRB", "Linkage", "Simulasi Pengganda"])
 
-## ------------------------------ HOME ------------------------------
+## ------------------------------ Home ------------------------------
 if page == "Home":
     st.write("Ini lagi di ", page)
     
-## ------------------------------ SNAPSHOT ------------------------------
+## ------------------------------ About ------------------------------
 if page == "Tentang":
     st.write("Ini lagi di ", page)
     
-## ------------------------------ USE ------------------------------
+## ------------------------------ Eks-Imp ------------------------------
 if page == "Ekspor-Impor":
     st.write("Ini lagi di ", page)
-    st.dataframe(df_eksim, use_container_width=True)
+    eks0a, eks_col1a, eks_col1b, eks0b, eks_col1c = st.columns([2,2,3,1,3])
+    with eks_col1a:
+        eks_fil1 = st.radio('**Pilih Kriteria**', ['Industri', 'Provinsi'])
+    with eks_col1b :
+        if eks_fil1 == 'Industri':
+            eks_fil2 = st.selectbox('**Pilih Industri:**', opt_eksim_ind)
+        else :
+            eks_fil2 = st.selectbox('**Pilih Provinsi:**', opt_provinsi)
+    with eks_col1c:
+        eks_fil3 = st.radio('**Pilih Jenis Transaksi:**', ["Ekspor antar Provinsi", "Impor antar Provinsi", "Net Ekspor"])
+    data_eks = filterTableEksim(crit=eks_fil1, crit2=eks_fil2, jenis=eks_fil3)
+    with st.expander('**Tabel Ekspor Impor**', expanded=True):
+        st.dataframe(data_eks, use_container_width=True, height=600)
     
+    fig3 = plotSpatial(nilai)
+    st.plotly_chart(fig3)
 
-## ------------------------------ SUPPLY ------------------------------
+## ------------------------------ PDRB ------------------------------
 if page == "PDRB":
     st.write("Ini lagi di ", page)
     st.dataframe(df_pdrb, use_container_width=True)
@@ -70,9 +84,8 @@ if page == "PDRB":
             # data1 = df_pdrb[df_pdrb['jenis_pdrb'] == jenis_pdrb][df_pdrb['nama_prov'].isin(provinsi)][df_pdrb['nama_komp'].isin(sektor)]
             st.dataframe(dat1[['nama_prov', 'jenis_pdrb', 'nama_komp', 'nilai_jt']], use_container_width=True)
             
-        pd_col2a, pd_col2b = st.columns([3,7])
-        with pd_col2b:
-            st.plotly_chart(fig1, use_container_width=True)
+
+        st.plotly_chart(fig1, use_container_width=True)
         
     else:
         pd_col3a, pd_col3b = st.columns([3,7])
@@ -113,10 +126,14 @@ if page == "PDRB":
             st.plotly_chart(fig2, use_container_width=True)
         
 
-## ------------------------------ INDUSTRY ------------------------------
+## ------------------------------ Linkage ------------------------------
 if page == "Linkage":
     st.write("Ini lagi di ", page)
     
-## ------------------------------ I/O ------------------------------
+## ------------------------------ Multiplier ------------------------------
 if page == "Simulasi Pengganda":
+    st.write("Ini lagi di ", page)
+
+## ------------------------------ Chatbots ------------------------------
+if page == "Chat":
     st.write("Ini lagi di ", page)
