@@ -34,33 +34,7 @@ def plotNasionalBerdasarkanJenisPDRB(jenis_pdrb, nama_sektor, n):
     fig.update_layout(barmode='stack')
     return(data, fig)
 
-## EKS-IMP
 
-df_eksim = pr.read_r('data/data_eksim_ap.rds')[None]
-opt_eksim_ind = df_eksim['nama_ind_eks'].unique()
-
-def filterTableEksim(crit, crit2, jenis):
-    if crit == 'Provinsi':
-        if jenis == 'Ekspor antar Provinsi':
-            data = df_eksim[df_eksim['nama_prov_eks'] == crit2]
-        elif jenis == 'Impor antar Provinsi':
-            data = df_eksim[df_eksim['nama_prov_imp'] == crit2]
-        else :
-            data = (df_eksim[df_eksim['nama_prov_eks'] == 'Aceh']
-                    .sort_values(by=['kode_prov_eks', 'nama_prov_eks', 
-                           'kode_prov_imp', 'nama_prov_imp',
-                           'kode_ind_eks', 'nama_ind_eks',
-                           'penggunaan']))
-            data_imp = (df_eksim[df_eksim['nama_prov_imp'] == 'Aceh']
-                        .sort_values(by=['kode_prov_imp', 'nama_prov_imp', 
-                             'kode_prov_eks', 'nama_prov_eks',
-                             'kode_ind_eks', 'nama_ind_eks',
-                             'penggunaan']))
-            data['nilai_mil'] = data['nilai_mil'].values - data['nilai_mil'].values
-    else:
-        data = df_eksim[df_eksim['nama_ind_eks']==crit2]
-    return data
-            
 ## LOC
 import requests
 geojson = requests.get(
@@ -94,7 +68,7 @@ def plotSpatial(dat):
             z=df2['nilai_mil'],
             colorscale="Reds",
             colorbar_title="Column"))
-    fig.update_layout(autosize=False,
+    fig.update_layout(autosize=True,
                         margin = dict(
                                 l=0,
                                 r=0,
@@ -103,39 +77,98 @@ def plotSpatial(dat):
                                 pad=4,
                                 autoexpand=True
                             ),
-                            width=800,
+                            width = 1200
                             )
     fig.update_geos(fitbounds="locations", visible=False)
     return(fig)
 
-## Func Get DF Eksim
-def makeTableEksImp(crit, crit2, jenis):
-    if crit == 'Ekspor antar Provinsi':
-    # PROV - Ekspor Antar Provinsi
-        df = (df_eksim[df_eksim['nama_prov_eks'] == crit2]
-              .groupby('nama_prov_imp', as_index=False)
-              .agg(nilai_mil=('nilai_mil', 'sum'))
-              .assign(kode_prov=lambda x: x['nama_prov_imp']))
+## EKS-IMP
 
-    # PROV - Impor Antar Provinsi
+df_eksim = pr.read_r('data/data_eksim_ap.rds')[None]
+opt_eksim_ind = df_eksim['nama_ind_eks'].unique()
+
+def filterTableEksim(crit, crit2, jenis):
+    if crit == 'Provinsi':
+        if jenis == 'Ekspor antar Provinsi':
+            data = df_eksim[df_eksim['nama_prov_eks'] == crit2]
+        elif jenis == 'Impor antar Provinsi':
+            data = df_eksim[df_eksim['nama_prov_imp'] == crit2]
+        else :
+            data = (df_eksim[df_eksim['nama_prov_eks'] == crit2]
+                    .sort_values(by=['kode_prov_eks', 'nama_prov_eks', 
+                           'kode_prov_imp', 'nama_prov_imp',
+                           'kode_ind_eks', 'nama_ind_eks',
+                           'penggunaan']))
+            data_imp = (df_eksim[df_eksim['nama_prov_imp'] == crit2]
+                        .sort_values(by=['kode_prov_imp', 'nama_prov_imp', 
+                             'kode_prov_eks', 'nama_prov_eks',
+                             'kode_ind_eks', 'nama_ind_eks',
+                             'penggunaan']))
+            data['nilai_mil'] = data['nilai_mil'].values - data['nilai_mil'].values
     else:
-        df = (df_eksim[df_eksim['nama_prov_imp'] == crit2]
-              .groupby('nama_prov_eks', as_index=False)
-              .agg(nilai_mil=('nilai_mil', 'sum'))
-              .assign(kode_prov=lambda x: x['nama_prov_eks']))
+        data = df_eksim[df_eksim['nama_ind_eks'] == crit2]
+    return data
+            
+def makeTableEksImp(crit, crit2, jenis):
+    if crit == 'Provinsi':
+        if jenis == 'Ekspor antar Provinsi':
+        # PROV - Ekspor antar Provinsi
+            df = (df_eksim[df_eksim['nama_prov_eks'] == crit2]
+                .groupby('nama_prov_imp', as_index=False)
+                .agg(nilai_mil=('nilai_mil', 'sum'))
+                .assign(kode_prov=lambda x: x['nama_prov_imp']))
+        # PROV - Impor antar Provinsi
+        elif jenis == 'Impor antar Provinsi':
+            df = (df_eksim[df_eksim['nama_prov_imp'] == crit2]
+                .groupby('nama_prov_eks', as_index=False)
+                .agg(nilai_mil=('nilai_mil', 'sum'))
+                .assign(kode_prov=lambda x: x['nama_prov_eks']))
+        # PROV - Net Ekspor
+        else:
+            df = (df_eksim[df_eksim['nama_prov_eks'] == crit2]
+                .groupby('nama_prov_imp', as_index=False)
+                .agg(nilai_mil=('nilai_mil', 'sum'))
+                .assign(kode_prov=lambda x: x['nama_prov_imp']))
+            df_im = (df_eksim[df_eksim['nama_prov_imp'] == crit2]
+                .groupby('nama_prov_eks', as_index=False)
+                .agg(nilai_mil=('nilai_mil', 'sum'))
+                .assign(kode_prov=lambda x: x['nama_prov_eks']))
+            df['nilai_mil'] = df['nilai_mil'] - df_im['nilai_mil']
+    else:
+        if jenis == "Ekspor antar Provinsi":
+            df = (df_eksim[df_eksim['nama_ind_eks'] == crit2]
+                .groupby('nama_prov_eks', as_index=False)
+                .agg(nilai_mil=('nilai_mil', 'sum'))
+                .assign(kode_prov=lambda x: x['nama_prov_eks']))
+        elif jenis == "Impor antar Provinsi":
+            df = (df_eksim[df_eksim['nama_ind_eks'] == crit2]
+                .groupby('nama_prov_imp', as_index=False)
+                .agg(nilai_mil=('nilai_mil', 'sum'))
+                .assign(kode_prov=lambda x: x['nama_prov_imp']))
+        else:
+            df = (df_eksim[df_eksim['nama_ind_eks'] == crit2]
+                .groupby('nama_prov_eks', as_index=False)
+                .agg(nilai_mil=('nilai_mil', 'sum'))
+                .assign(kode_prov=lambda x: x['nama_prov_eks']))
+            df_im = (df_eksim[df_eksim['nama_ind_eks'] == crit2]
+                    .groupby('nama_prov_imp', as_index=False)
+                    .agg(nilai_mil=('nilai_mil', 'sum'))
+                    .assign(kode_prov=lambda x: x['nama_prov_imp']))
+            df['nilai_mil'] = df['nilai_mil'] - df_im['nilai_mil']
     return df
 
-# PROV - Net Ekspor
-nilai = (df_eksim[df_eksim['nama_prov_eks'] == 'Aceh']
-         .groupby('nama_prov_imp', as_index=False)
-         .agg(nilai_mil=('nilai_mil', 'sum'))
-         .assign(kode_prov=lambda x: x['nama_prov_imp']))
+def get_total_eksim(crit, crit2, data_eksim):
+    if crit == "Provinsi":
+        tot_eks = (data_eksim[data_eksim['nama_prov_eks'] == crit2]
+                   .agg(nilai_mil=('nilai_mil', 'sum')))
+        
+        tot_imp = (data_eksim[data_eksim['nama_prov_imp'] == crit2]
+                   .agg(nilai_mil=('nilai_mil', 'sum')))
+    else:
+        tot_eks = (data_eksim[data_eksim['nama_ind_eks'] == crit2]
+                   .agg(nilai_mil=('nilai_mil', 'sum')))
+        
+        tot_imp = tot_eks
+    
+    return tot_eks['nilai_mil'], tot_imp['nilai_mil']
 
-# Second part: filtering, grouping, and summarising
-nilai_im = (df_eksim[df_eksim['nama_prov_imp'] == 'Aceh']
-            .groupby('nama_prov_eks', as_index=False)
-            .agg(nilai_mil=('nilai_mil', 'sum'))
-            .assign(kode_prov=lambda x: x['nama_prov_eks']))
-
-# Assuming 'nilai' and 'nilai_im' have the same 'kode_prov' values and are sorted in the same order
-nilai['nilai_mil'] = nilai['nilai_mil'] - nilai_im['nilai_mil']

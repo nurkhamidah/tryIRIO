@@ -38,8 +38,27 @@ if page == "Ekspor-Impor":
     with st.expander('**Tabel Ekspor Impor**', expanded=True):
         st.dataframe(data_eks, use_container_width=True, height=600)
     
-    fig3 = plotSpatial(nilai)
-    st.plotly_chart(fig3)
+    dat3 = makeTableEksImp(crit=eks_fil1, crit2=eks_fil2, jenis=eks_fil3)
+    fig3 = plotSpatial(dat3)
+    eks_col2a, eks_col2b = st.columns([1,4])
+    with eks_col2b:
+        if eks_fil3 == "Impor antar Provinsi":
+            st.markdown('<div style="text-align:center"><b>{} dari {} {} menurut Provinsi Asal (Miliar Rupiah)</b></div>'.format(eks_fil3, eks_fil1, eks_fil2), 
+                        unsafe_allow_html=True)
+        else:
+            st.write('<div style="text-align:center"><b>{} dari {} {} menurut Provinsi Tujuan (Miliar Rupiah)</b></div>'.format(eks_fil3, eks_fil1, eks_fil2),
+                    unsafe_allow_html=True)
+        st.plotly_chart(fig3, use_container_width=True)
+    with eks_col2a:
+        '**PERDAGANGAN ANTAR PROVINSI**'
+        nil_eks = get_total_eksim(crit = eks_fil1, crit2 = eks_fil2, data_eksim=df_eksim)[0]['nilai_mil']
+        nil_imp = get_total_eksim(crit = eks_fil1, crit2 = eks_fil2, data_eksim=df_eksim)[1]['nilai_mil']
+        st.metric('**Nilai Ekspor:**', 'Rp {} Miliar'.format(nil_eks.round(2)))
+        st.metric('**Nilai Impor:**', 'Rp {} Miliar'.format(nil_imp.round(2)))
+        if nil_imp > nil_eks:
+            st.metric('**Defisit:**', 'Rp {} Miliar'.format((nil_imp - nil_eks).round(2)))
+        else:
+            st.metric('**Surplus:**', 'Rp {} Miliar'.format((nil_eks - nil_imp).round(2)))
 
 ## ------------------------------ PDRB ------------------------------
 if page == "PDRB":
