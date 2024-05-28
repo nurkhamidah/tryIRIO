@@ -11,7 +11,7 @@ st.set_page_config(
 
 ## ------------------------------ NAVBAR ------------------------------
 
-page = st_navbar(["Home", "Tentang", "Ekspor-Impor", "PDRB", "Linkage", "Simulasi Pengganda"])
+page = st_navbar(["Home", "Tentang", "Ekspor-Impor", "PDRB", "Linkage", "Simulasi Pengganda", "Chat"])
 
 ## ------------------------------ Home ------------------------------
 if page == "Home":
@@ -156,3 +156,38 @@ if page == "Simulasi Pengganda":
 ## ------------------------------ Chatbots ------------------------------
 if page == "Chat":
     st.write("Ini lagi di ", page)
+
+st.title("Ini Hanya Bot")
+
+import random
+import time
+
+# OPENAI_API_KEY = "XXX"
+# from openai import OpenAI
+
+def response_generator():
+    response = random.choice(
+        [
+            "Halo, mau apa kau?",
+            "Ga usah ngetik aneh aneh ya",
+            "Gak mau kubantu pula",
+        ]
+    )
+    for word in response.split():
+        yield word + " "
+        time.sleep(0.05)
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+if prompt := st.chat_input("What is up?"):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    with st.chat_message("assistant"):
+        response = st.write_stream(response_generator())
+    st.session_state.messages.append({"role": "assistant", "content": response})
