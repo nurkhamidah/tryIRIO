@@ -172,3 +172,6 @@ def get_total_eksim(crit, crit2, data_eksim):
     
     return tot_eks['nilai_mil'], tot_imp['nilai_mil']
 
+def makeBarChart(df, colx, coly):
+    fig = px.bar(df, x=colx, y=coly, color=colx, height=400)
+    return fig

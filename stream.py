@@ -17,7 +17,7 @@ page = st_navbar(["Home", "Tentang", "Ekspor-Impor", "PDRB", "Linkage", "Simulas
 if page == "Home":
     st.write("Ini lagi di ", page)
     
-## ------------------------------ About ------------------------------
+## ------------------------ç------ About ------------------------------
 if page == "Tentang":
     st.write("Ini lagi di ", page)
     
@@ -59,7 +59,15 @@ if page == "Ekspor-Impor":
             st.metric('**Defisit:**', 'Rp {} Miliar'.format((nil_imp - nil_eks).round(2)))
         else:
             st.metric('**Surplus:**', 'Rp {} Miliar'.format((nil_eks - nil_imp).round(2)))
-
+            
+    eks_col3a, eks_col3b = st.columns([1,1])
+    with eks_col3a:
+        fig4a = makeBarChart(makeTableEksImp(crit = eks_fil1, crit2 = eks_fil2, jenis=eks_fil3).sort_values(['nilai_mil'], ascending = False).head(5), colx = 'kode_prov', coly = 'nilai_mil')
+        st.plotly_chart(fig4a, use_container_width = True)
+    with eks_col3b:
+        fig4b = makeBarChart(makeTableEksImp(crit = eks_fil1, crit2 = eks_fil2, jenis=eks_fil3).sort_values(['nilai_mil'], ascending = True).head(5), colx = 'kode_prov', coly = 'nilai_mil')
+        st.plotly_chart(fig4b, use_container_width = True)
+        
 ## ------------------------------ PDRB ------------------------------
 if page == "PDRB":
     st.write("Ini lagi di ", page)
@@ -168,9 +176,9 @@ if page == "Chat":
     def response_generator():
         response = random.choice(
             [
-                "Halo, mau apa kau?",
-                "Ga usah ngetik aneh aneh ya",
-                "Gak mau kubantu pula",
+                "Halo, ada yang bisa dibantu?",
+                "Saya siap membantu Anda",
+                "Layanan hari ini tutup.",
             ]
         )
         for word in response.split():
