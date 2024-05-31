@@ -204,3 +204,5 @@ def makeScatterPlotFLBL(df, prov):
 leontif = pr.read_r("data/leontif.rds")[None]
 base_irio = pr.read_r("data/sim_irio.rds")[None]
 out_irio = pr.read_r("data/out_irio.rds")[None]
+
+opt_ind = base_irio['nama_ind'].unique()

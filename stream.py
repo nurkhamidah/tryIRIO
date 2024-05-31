@@ -193,6 +193,30 @@ if page == "Simulasi Pengganda":
     st.write("Ini lagi di ", page)
     # AgGrid(base_irio,
     #        gridOptions = GridOptionsBuilder.from_dataframe(base_irio).build())
+    
+    sim_col1a, sim_col1b, sim_col1c = st.columns([1,1,1])
+    with sim_col1a:
+        '**Cari Berdasarkan:**'
+        sim_opt1 = st.checkbox('Provinsi')
+        sim_opt2 = st.checkbox('Industri')
+
+    with sim_col1b: 
+        if (sim_opt1 & sim_opt2):
+            sim_prov = st.selectbox('**Pilih Provinsi:**', opt_provinsi)
+            sim_ind = st.selectbox('**Pilih Industri:**', opt_ind)   
+            df_sim = base_irio[base_irio['nama_prov']==sim_prov][base_irio['nama_ind']==sim_ind] 
+        elif (sim_opt1 & sim_opt2 == False):
+            sim_prov = st.selectbox('**Pilih Provinsi:**', opt_provinsi)
+            df_sim = base_irio[base_irio['nama_prov']==sim_prov] 
+        elif (sim_opt2 & sim_opt1 == False):
+            sim_ind = st.selectbox('**Pilih Industri:**', opt_ind)   
+            df_sim = base_irio[base_irio['nama_ind']==sim_ind] 
+        else:
+            df_sim = base_irio
+        
+        
+    row_number = st.number_input('Number of rows', min_value=0, value=len(df_sim)) 
+        
     formatter = {
         'id': ('ID', {**PINLEFT, 'width' : 40}),
         'nama_prov': ('Provinsi', {'width': 80}),
@@ -202,9 +226,8 @@ if page == "Simulasi Pengganda":
         'target': ('Target', {'editable': True, 'width':60})
     }
 
-    row_number = st.number_input('Number of rows', min_value=0, value=len(base_irio))
     data = draw_grid(
-        base_irio.head(row_number),
+        df_sim.head(row_number),
         formatter=formatter,
         fit_columns=True,
         selection='multiple',  # or 'single', or None
