@@ -161,6 +161,32 @@ if page == "PDRB":
 ## ------------------------------ Linkage ------------------------------
 if page == "Linkage":
     st.write("Ini lagi di ", page)
+
+
+lin_col1a, lin_col1b = st.columns([2,5])
+with lin_col1a:
+    lin_prov = st.selectbox('**Pilih Provinsi:**', opt_provinsi)
+    st.write('**Industri Unggulan Provinsi {} Berdasarkan Forward-Backward Linkage**'.format(lin_prov))
+    lin_df, lin_fig1 = makeScatterPlotFLBL(df_flbl, lin_prov)
+    unggulan_f_id = lin_df['nama_ind'][lin_df['n_forward'].idxmax()]
+    unggulan_b_id = lin_df['nama_ind'][lin_df['n_backward'].idxmax()]
+    st.metric('Forward Linkage', value=unggulan_f_id)
+    st.metric('Backward Linkage', value=unggulan_b_id)
+    
+with lin_col1b:
+    st.plotly_chart(lin_fig1, use_container_width=True)
+
+lin_col2a, lin_col2b, lin_col2c = st.columns([1,1,1])
+with lin_col2b : 
+    lin_slid1 = st.slider('**Masukkan Banyak Industri yang Ingin Ditampilkan:**', 1, len(lin_df))
+
+lin_col3a, lin_col3b = st.columns([1,1])
+with lin_col3a:
+    lin_fig2a = makeBarChart(lin_df.sort_values('n_forward', ascending=False).head(lin_slid1), colx='nama_ind', coly='n_forward')
+    st.plotly_chart(lin_fig2a)
+with lin_col3b:
+    lin_fig2b = makeBarChart(lin_df.sort_values('n_backward', ascending=False).head(lin_slid1), colx='nama_ind', coly='n_backward')
+    st.plotly_chart(lin_fig2b)
     
 ## ------------------------------ Multiplier ------------------------------
 if page == "Simulasi Pengganda":

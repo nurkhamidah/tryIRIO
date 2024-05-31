@@ -178,3 +178,23 @@ def makeBarChart(df, colx, coly):
 
 ## FL-BL 
 df_flbl = pr.read_r('data/flbl_detail.rds')[None]
+
+def makeScatterPlotFLBL(df, prov):
+    data = df[df['nama_prov'] == prov]
+    fig = px.scatter(data, x='n_forward', y='n_backward',
+                 title='Grafik Forward-Backward Linkage Provinsi {}'.format(prov),
+                 labels={'n_forward': 'Forward', 'n_backward': 'Backward'},
+                 template='simple_white', custom_data=['nama_ind'])
+    fig.update_traces(marker=dict(size=13,
+                                color='LightSkyBlue',
+                                line=dict(width=2,
+                                            color='DarkSlateGrey')),
+                    hovertemplate="<br>".join([
+                        "Forward: %{x}",
+                        "Backward: %{y}",
+                        "%{customdata[0]}"]))
+    fig.add_hline(y=1, line_width=2, opacity=0.8)
+    fig.add_vline(x=1, line_width=2, opacity=0.8)
+    fig.update_layout(yaxis=dict(showline=False),
+                    xaxis=dict(showline=False))
+    return(data, fig)
