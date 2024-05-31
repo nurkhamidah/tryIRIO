@@ -199,22 +199,32 @@ if page == "Simulasi Pengganda":
         '**Cari Berdasarkan:**'
         sim_opt1 = st.checkbox('Provinsi')
         sim_opt2 = st.checkbox('Industri')
-
     with sim_col1b: 
-        if (sim_opt1 & sim_opt2):
+        # if (sim_opt1 & sim_opt2):
+        #     sim_prov = st.selectbox('**Pilih Provinsi:**', opt_provinsi)
+        #     sim_ind = st.selectbox('**Pilih Industri:**', opt_ind)   
+        #     df_sim = base_irio[base_irio['nama_prov']==sim_prov][base_irio['nama_ind']==sim_ind] 
+        # elif(sim_opt1 == False & sim_opt2 == False):
+        #     df_sim = base_irio
+        # else:
+        #     if sim_opt2:
+        #         sim_ind = st.selectbox('**Pilih Industri:**', opt_ind)   
+        #         df_sim = base_irio[base_irio['nama_ind']==sim_ind] 
+        #     else:
+        #         sim_prov = st.selectbox('**Pilih Provinsi:**', opt_provinsi)
+        #         df_sim = base_irio[base_irio['nama_prov']==sim_prov]  
+        
+        if sim_opt1:
             sim_prov = st.selectbox('**Pilih Provinsi:**', opt_provinsi)
-            sim_ind = st.selectbox('**Pilih Industri:**', opt_ind)   
-            df_sim = base_irio[base_irio['nama_prov']==sim_prov][base_irio['nama_ind']==sim_ind] 
-        elif (sim_opt1 & sim_opt2 == False):
-            sim_prov = st.selectbox('**Pilih Provinsi:**', opt_provinsi)
-            df_sim = base_irio[base_irio['nama_prov']==sim_prov] 
-        elif (sim_opt2 & sim_opt1 == False):
-            sim_ind = st.selectbox('**Pilih Industri:**', opt_ind)   
-            df_sim = base_irio[base_irio['nama_ind']==sim_ind] 
+            sim_prov = [sim_prov]
         else:
-            df_sim = base_irio
-        
-        
+            sim_prov = opt_provinsi 
+        if sim_opt2:
+            sim_ind = st.selectbox('**Pilih Industri:**', opt_ind)
+            sim_ind = [sim_ind]
+        else: 
+            sim_ind = opt_ind
+    df_sim = base_irio[base_irio['nama_prov'].isin(sim_prov)][base_irio['nama_ind'].isin(sim_ind)]   
     row_number = st.number_input('Number of rows', min_value=0, value=len(df_sim)) 
         
     formatter = {
