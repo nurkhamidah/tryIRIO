@@ -1,6 +1,6 @@
 import streamlit as st
 from data import *
-# from temp import *
+from src.agstyler import PINLEFT, PRECISION_TWO, draw_grid
 from streamlit_navigation_bar import st_navbar
 
 st.set_page_config(
@@ -191,6 +191,28 @@ if page == "Linkage":
 ## ------------------------------ Multiplier ------------------------------
 if page == "Simulasi Pengganda":
     st.write("Ini lagi di ", page)
+    # AgGrid(base_irio,
+    #        gridOptions = GridOptionsBuilder.from_dataframe(base_irio).build())
+    formatter = {
+        'id': ('ID', {**PINLEFT, 'width' : 40}),
+        'nama_prov': ('Provinsi', {'width': 80}),
+        'nama_ind': ('Industri', {'width': 200}),
+        'final_demand': ('Final Demand', {**PRECISION_TWO, 'width': 100}),
+        'nilai_jt': ('Nilai (jt)', {**PRECISION_TWO, 'width': 100}),
+        'target': ('Target', {'editable': True, 'width':60})
+    }
+
+    row_number = st.number_input('Number of rows', min_value=0, value=len(base_irio))
+    data = draw_grid(
+        base_irio.head(row_number),
+        formatter=formatter,
+        fit_columns=True,
+        selection='multiple',  # or 'single', or None
+        use_checkbox='True',  # or False by default
+        max_height=500
+    )
+    
+    st.dataframe(data['data'])
 
 ## ------------------------------ Chatbots ------------------------------
 if page == "Chat":

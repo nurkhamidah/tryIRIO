@@ -3,6 +3,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import pyreadr as pr
+from st_aggrid import AgGrid, GridOptionsBuilder
 
 ## PDRB
 
@@ -198,3 +199,8 @@ def makeScatterPlotFLBL(df, prov):
     fig.update_layout(yaxis=dict(showline=False),
                     xaxis=dict(showline=False))
     return(data, fig)
+
+## SIMULASI
+leontif = pr.read_r("data/leontif.rds")[None]
+base_irio = pr.read_r("data/sim_irio.rds")[None]
+out_irio = pr.read_r("data/out_irio.rds")[None]
