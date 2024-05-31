@@ -175,3 +175,6 @@ def get_total_eksim(crit, crit2, data_eksim):
 def makeBarChart(df, colx, coly):
     fig = px.bar(df, x=colx, y=coly, color=colx, height=400)
     return fig
+
+## FL-BL 
+df_flbl = pr.read_r('data/flbl_detail.rds')[None]

@@ -61,11 +61,16 @@ if page == "Ekspor-Impor":
             st.metric('**Surplus:**', 'Rp {} Miliar'.format((nil_eks - nil_imp).round(2)))
             
     eks_col3a, eks_col3b = st.columns([1,1])
+    eks_col4a, eks_col4b, eks_col4c = st.columns([1,1,1])
+    df_4a = makeTableEksImp(crit = eks_fil1, crit2 = eks_fil2, jenis=eks_fil3).sort_values(['nilai_mil'], ascending = False)
+    with eks_col4b:
+        eks_slid = st.slider('**Masukkan Banyak Provinsi yang Ditampilkan**', 1, len(df_4a))
     with eks_col3a:
-        fig4a = makeBarChart(makeTableEksImp(crit = eks_fil1, crit2 = eks_fil2, jenis=eks_fil3).sort_values(['nilai_mil'], ascending = False).head(5), colx = 'kode_prov', coly = 'nilai_mil')
+        fig4a = makeBarChart(df_4a.head(eks_slid), colx = 'kode_prov', coly = 'nilai_mil')
         st.plotly_chart(fig4a, use_container_width = True)
     with eks_col3b:
-        fig4b = makeBarChart(makeTableEksImp(crit = eks_fil1, crit2 = eks_fil2, jenis=eks_fil3).sort_values(['nilai_mil'], ascending = True).head(5), colx = 'kode_prov', coly = 'nilai_mil')
+        df_4b = makeTableEksImp(crit = eks_fil1, crit2 = eks_fil2, jenis=eks_fil3).sort_values(['nilai_mil'], ascending = True)
+        fig4b = makeBarChart(df_4b.head(eks_slid), colx = 'kode_prov', coly = 'nilai_mil')
         st.plotly_chart(fig4b, use_container_width = True)
         
 ## ------------------------------ PDRB ------------------------------
