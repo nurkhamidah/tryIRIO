@@ -244,9 +244,15 @@ if page == "Simulasi Pengganda":
         use_checkbox='True',  # or False by default
         max_height=500
     )
-    
-    st.dataframe(data['data'])
-
+    data2 = data['data']
+    updated_data = data2[data2['target'] != 0]
+    st.dataframe(updated_data)
+    for i in range(len(base_irio)):
+        for j in range(len(updated_data)):
+            if((base_irio.iloc[i]['nama_prov'] == updated_data.iloc[j]['nama_prov']) &
+               (base_irio.iloc[i]['nama_ind'] == updated_data.iloc[j]['nama_ind'])):
+                base_irio.iloc[i] = updated_data.iloc[j]
+    st.dataframe(base_irio)
 ## ------------------------------ Chatbots ------------------------------
 if page == "Chat":
     st.write("Ini lagi di ", page)
