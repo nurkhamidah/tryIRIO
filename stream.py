@@ -253,6 +253,8 @@ if page == "Simulasi Pengganda":
                (base_irio.iloc[i]['nama_ind'] == updated_data.iloc[j]['nama_ind'])):
                 base_irio.iloc[i] = updated_data.iloc[j]
     st.dataframe(base_irio)
+    
+    # SETELAH INI BARU NYIMPEN TABLE BUAT DILAKUKAN PERHITUNGAN SIMULASI PENGGANDA, TP BENTAR AKU CAPE
 ## ------------------------------ Chatbots ------------------------------
 if page == "Chat":
     st.write("Ini lagi di ", page)
