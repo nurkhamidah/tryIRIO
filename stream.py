@@ -1,7 +1,11 @@
 import streamlit as st
 from data import *
-from src.agstyler import PINLEFT, PRECISION_TWO, draw_grid
+from src.agstyler import PINLEFT, PRECISION_TWO
+from llama_index.core import VectorStoreIndex,SimpleDirectoryReader,ServiceContext
+# from llama_index.llms import openai
+from llama_index.llms.openai import OpenAI
 from streamlit_navigation_bar import st_navbar
+from src.agstyler import *
 
 st.set_page_config(
     page_title="BI Hackathon Prototype",
@@ -199,21 +203,7 @@ if page == "Simulasi Pengganda":
         '**Cari Berdasarkan:**'
         sim_opt1 = st.checkbox('Provinsi')
         sim_opt2 = st.checkbox('Industri')
-    with sim_col1b: 
-        # if (sim_opt1 & sim_opt2):
-        #     sim_prov = st.selectbox('**Pilih Provinsi:**', opt_provinsi)
-        #     sim_ind = st.selectbox('**Pilih Industri:**', opt_ind)   
-        #     df_sim = base_irio[base_irio['nama_prov']==sim_prov][base_irio['nama_ind']==sim_ind] 
-        # elif(sim_opt1 == False & sim_opt2 == False):
-        #     df_sim = base_irio
-        # else:
-        #     if sim_opt2:
-        #         sim_ind = st.selectbox('**Pilih Industri:**', opt_ind)   
-        #         df_sim = base_irio[base_irio['nama_ind']==sim_ind] 
-        #     else:
-        #         sim_prov = st.selectbox('**Pilih Provinsi:**', opt_provinsi)
-        #         df_sim = base_irio[base_irio['nama_prov']==sim_prov]  
-        
+    with sim_col1b:         
         if sim_opt1:
             sim_prov = st.selectbox('**Pilih Provinsi:**', opt_provinsi)
             sim_prov = [sim_prov]
@@ -245,51 +235,112 @@ if page == "Simulasi Pengganda":
         max_height=500
     )
     data2 = data['data']
-    updated_data = data2[data2['target'] != 0]
-    st.dataframe(updated_data)
-    for i in range(len(base_irio)):
-        for j in range(len(updated_data)):
-            if((base_irio.iloc[i]['nama_prov'] == updated_data.iloc[j]['nama_prov']) &
-               (base_irio.iloc[i]['nama_ind'] == updated_data.iloc[j]['nama_ind'])):
-                base_irio.iloc[i] = updated_data.iloc[j]
-    st.dataframe(base_irio)
+    updated_data = data2[(data2['target'] != 0) & (data2['target'].apply(lambda x: isinstance(x, int)))]
+    sim_base, sim_sim = simulationIRIO(updated_data)
     
-    # SETELAH INI BARU NYIMPEN TABLE BUAT DILAKUKAN PERHITUNGAN SIMULASI PENGGANDA, TP BENTAR AKU CAPE
+    with sim_col1c:
+        sim_col1c_1, sim_col1c_2 = st.columns([1,1])
+        with sim_col1c_1:
+            st.metric('**Nilai PDRB Awal:**', sim_base)
+        with sim_col1c_2:
+            st.metric('**Nilai PDRB Akhir:**', sim_sim)
+            
 ## ------------------------------ Chatbots ------------------------------
 if page == "Chat":
     st.write("Ini lagi di ", page)
-
     st.title("Ini Hanya Bot")
 
-    import random
-    import time
+## ------------------ RANDOM ANSWER
+#     import random
+#     import time
 
-    # OPENAI_API_KEY = "XXX"
+#     def response_generator():
+#         response = random.choice(
+#             [
+#                 "Halo, ada yang bisa dibantu?",
+#                 "Saya siap membantu Anda",
+#                 "Layanan hari ini tutup.",
+#             ]
+#         )
+#         for word in response.split():
+#             yield word + " "
+#             time.sleep(0.05)
+
+#     if "messages" not in st.session_state:
+#         st.session_state.messages = []
+
+#     for message in st.session_state.messages:
+#         with st.chat_message(message["role"]):
+#             st.markdown(message["content"])
+
+#     if prompt := st.chat_input("What is up?"):
+#         st.session_state.messages.append({"role": "user", "content": prompt})
+#         with st.chat_message("user"):
+#             st.markdown(prompt)
+#         with st.chat_message("assistant"):
+#             response = st.write_stream(response_generator())
+#         st.session_state.messages.append({"role": "assistant", "content": response})
+
+    ## ------------ WITH OPENAI
     # from openai import OpenAI
 
-    def response_generator():
-        response = random.choice(
-            [
-                "Halo, ada yang bisa dibantu?",
-                "Saya siap membantu Anda",
-                "Layanan hari ini tutup.",
-            ]
-        )
-        for word in response.split():
-            yield word + " "
-            time.sleep(0.05)
+    # client = OpenAI(api_key = st.secrets['OPENAI_4'])
+    
+    # if "messages" not in st.session_state.keys(): 
+    #     st.session_state.messages = [
+    #     {"role": "assistant", "content": "Ask me a question!"}
+    #     ]
 
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+    # if "openai_model" not in st.session_state:
+    #     st.session_state["openai_model"] = "gpt-3.5-turbo"
 
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+    # if "messages" not in st.session_state:
+    #     st.session_state.messages = []
 
-    if prompt := st.chat_input("What is up?"):
+    # for message in st.session_state.messages:
+    #     with st.chat_message(message["role"]):
+    #         st.markdown(message["content"])
+
+    # if prompt := st.chat_input("What is up?"):
+    #     st.session_state.messages.append({"role": "user", "content": prompt})
+    #     with st.chat_message("user"):
+    #         st.markdown(prompt)
+
+    #     with st.chat_message("assistant"):
+    #         stream = client.chat.completions.create(
+    #             model=st.session_state["openai_model"],
+    #             messages=[
+    #                 {"role": m["role"], "content": m["content"]}
+    #                 for m in st.session_state.messages
+    #             ],
+    #             stream=True,
+    #         )
+    #         response = st.write_stream(stream)
+    #     st.session_state.messages.append({"role": "assistant", "content": response})
+    
+    api_key = OpenAI(api_key = st.secrets['OPENAI_4'])
+    @st.cache_resource(show_spinner=False)
+    def load_data():
+        with st.spinner(text="Loading and indexing the Streamlit docs – hang tight! This should take 1-2 minutes."):
+            reader = SimpleDirectoryReader(input_dir="./corpus", recursive=True)
+            docs = reader.load_data()
+            service_context = ServiceContext.from_defaults(llm=OpenAI(model="gpt-3.5-turbo", temperature=0.5, system_prompt="You are an expert on the Streamlit Python library and your job is to answer technical questions. Assume that all questions are related to the Streamlit Python library. Keep your answers technical and based on facts – do not hallucinate features."))
+            index = VectorStoreIndex.from_documents(docs, service_context=service_context)
+            return index
+
+    index = load_data()
+    chat_engine = index.as_chat_engine(chat_mode="condense_question", verbose=True)
+    if prompt := st.chat_input("Your question"):
         st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
+
+    for message in st.session_state.messages: 
+        with st.chat_message(message["role"]):
+            st.write(message["content"])
+            
+    if st.session_state.messages[-1]["role"] != "assistant":
         with st.chat_message("assistant"):
-            response = st.write_stream(response_generator())
-        st.session_state.messages.append({"role": "assistant", "content": response})
+            with st.spinner("Thinking..."):
+                response = chat_engine.chat(prompt)
+                st.write(response.response)
+                message = {"role": "assistant", "content": response.response}
+                st.session_state.messages.append(message) 
