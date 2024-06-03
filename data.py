@@ -3,7 +3,11 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import pyreadr as pr
+from sklearn.preprocessing import StandardScaler
 from st_aggrid import AgGrid, GridOptionsBuilder
+from sklearn.cluster import KMeans
+from yellowbrick.cluster import KElbowVisualizer
+from functools import partial, reduce
 
 ## PDRB
 
@@ -199,6 +203,66 @@ def makeScatterPlotFLBL(df, prov):
     fig.update_layout(yaxis=dict(showline=False),
                     xaxis=dict(showline=False))
     return(data, fig)
+
+## CLUSTERING
+
+def concatTables(*dfs):
+    df = pd.concat(dfs, axis=1)
+    return(df)
+
+X_FD = pd.read_csv('data/X_FD.csv', sep=';')
+X_F = pd.read_csv('data/X_F.csv', sep=';')
+X_B = pd.read_csv('data/X_B.csv', sep=';')
+X_P1 = pd.read_csv('data/X_P1.csv', sep=';')
+X_P2 = pd.read_csv('data/X_P2.csv', sep=';')
+X_P3 = pd.read_csv('data/X_P3.csv', sep=';')
+X_E1 = pd.read_csv('data/X_E1.csv', sep=';')
+X_E2 = pd.read_csv('data/X_E2.csv', sep=';')
+
+def clusterProvince(df):
+    hasil = df['provinsi']
+    df.drop('provinsi', axis=1, inplace=True)
+    ms = StandardScaler()
+    X = pd.DataFrame(ms.fit_transform(df), columns=[df.columns])
+    model = KMeans()
+    visualizer = KElbowVisualizer(model, k=(2,30), timings= True)
+    visualizer.fit(X)
+    k = visualizer.elbow_value_
+    if k > 5: k=5
+    kmeans = KMeans(n_clusters=k, random_state=5)
+    kmeans.fit(X)
+    hasil = pd.concat([hasil, pd.DataFrame({'Segment':kmeans.labels_+1})], axis=1)
+    return(hasil)
+
+def plotSpatial2(dat):
+    df2 = df.merge(dat, left_on='Column', right_on='provinsi')
+    colors = ['#449A04', '#73C50B', '#0D5FDD', '#DD3B7A', '#AD2054']
+    cc_scale = (
+        [(0, colors[0])]
+        + [(0.25, colors[1])] + [(0.5, colors[2])]+ [(0.75, colors[3])]
+        + [(1, colors[4])])
+    fig = go.Figure(
+        data=go.Choropleth(
+            geojson=geojson,
+            locations=df["Column"], 
+            featureidkey="properties.state",
+            z=df2['Segment'],
+            coloraxis="coloraxis")).update_layout(coloraxis={"colorscale": cc_scale})
+    fig.update_layout(autosize=True,
+                        margin = dict(
+                                l=0,
+                                r=0,
+                                b=0,
+                                t=0,
+                                pad=4,
+                                autoexpand=True
+                            ),
+                            width = 1200
+                            )
+    fig.update_geos(fitbounds="locations", visible=False)
+    return(fig)
+
+    
 
 ## SIMULASI
 leontif = pr.read_r("data/leontif.rds")[None]

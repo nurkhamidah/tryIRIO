@@ -15,7 +15,7 @@ st.set_page_config(
 
 ## ------------------------------ NAVBAR ------------------------------
 
-page = st_navbar(["Home", "Tentang", "Ekspor-Impor", "PDRB", "Linkage", "Simulasi Pengganda", "Chat"])
+page = st_navbar(["Home", "Tentang", "Ekspor-Impor", "PDRB", "Linkage", "Simulasi Pengganda", "Model Segmentasi", "Chat"])
 
 ## ------------------------------ Home ------------------------------
 if page == "Home":
@@ -248,6 +248,40 @@ if page == "Simulasi Pengganda":
         with sim_col1c_2:
             st.metric('**Nilai PDRB Akhir:**', sim_sim)
             
+## ------------------------------ Segmentation Model --------------------------------------
+
+if page == 'Model Segmentasi':
+    st.title('Pemodelan Clustering untuk Segmentasi Provinsi')
+    seg_opt = st.multiselect('**Tentukan Kelompok Indikator Klasterisasi:**',
+                         ['Ekspor', 'Impor', 'Forward Linkage', 'Backward Linkage',
+                          'PDRB Produksi', 'PDRB Pendapatan', 'PDRB Pengeluaran', 'Final Demand'])
+    dict_dfs = {'Ekspor':X_E1,
+                'Impor':X_E2,
+                'Forward Linkage':X_F,
+                'Backward Linkage':X_B,
+                'PDRB Produksi':X_P1,
+                'PDRB Pendapatan':X_P3,
+                'PDRB Pengeluaran':X_P2,
+                'Final Demand':X_FD}
+    dfs = []
+    for opt in seg_opt:
+        dfs.append(dict_dfs[opt])
+    df_X = dfs[0]
+    for df in dfs[1:]:
+        df_X = pd.merge(df_X, df, on='provinsi', how='outer')
+    # merge = partial(pd.merge, on=['provinsi'], how='outer')
+    # df_X = reduce(merge, dfs)
+    seg_col1, seg_col2 = st.columns([2,7])
+    dfd = clusterProvince(df_X)
+    fig5 = plotSpatial2(dfd)
+    with seg_col1:
+        dfd.columns = ['Provinsi', 'Cluster']
+        st.dataframe(dfd, use_container_width=True)
+    with seg_col2:
+        st.markdown('<div style="text-align:center"><b>Hasil Klasterisasi Provinsi</b></div>', unsafe_allow_html=True)
+        st.plotly_chart(fig5, use_container_width=True)
+
+
 ## ------------------------------ Chatbots ------------------------------
 if page == "Chat":
     st.write("Ini lagi di ", page)
