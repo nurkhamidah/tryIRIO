@@ -1,22 +1,26 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
+import hydralit_components as hc
 
-# Define the pages and their file paths
-pages = {'Home':'pages/p-home.py',
-         'Snapshot':'pages/p-snapshot.py',
-         'Production':'pages/p-production.py',
-         'Consumption':'pages/p-consumption.py',
-         'Industry':'pages/p-industry.py',
-         'I/O Analysis':'pages/p-io.py'}
+menu_data = [
+    {'id': 'home', 'label':'Home'},
+    {'id': 'about', 'label':'About'},
+    {'id': 'pdrb', 'label':'PDRB'},
+    {'id': 'eksim', 'label':'Ekspor-Impor'},
+    {'id': 'flbl', 'label':'Forward-Backward Linkage'},
+    {'id': 'simul', 'label':'Simulasi Pengganda'},
+    {'id': 'clust', 'label':'Model Segmentasi'},
+    {'id': 'chat', 'label':'Chatbot'}    
+]
 
-# Create a list of the page names
-page_list = list(pages.keys())
+over_theme = {'txc_inactive': '#FFFFFF'}
+menu_id = hc.nav_bar(
+    menu_definition=menu_data,
+    override_theme=over_theme,
+    hide_streamlit_markers=False,
+    sticky_nav=True, 
+    sticky_mode='pinned', 
+)
 
-def nav(current_page=page_list[0]):
-    with st.sidebar:
-        p = option_menu("Page Menu", page_list, 
-            default_index=page_list.index(current_page), 
-            orientation="vertical")
-
-        if current_page != p:
-            st.switch_page(pages[p])
+#get the id of the menu item clicked
+st.write(menu_id)

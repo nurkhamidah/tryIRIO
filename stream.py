@@ -1,11 +1,6 @@
 import streamlit as st
 from data import *
-from src.agstyler import PINLEFT, PRECISION_TWO
-from llama_index.core import VectorStoreIndex,SimpleDirectoryReader,ServiceContext
-# from llama_index.llms import openai
-from llama_index.llms.openai import OpenAI
-from streamlit_navigation_bar import st_navbar
-from src.agstyler import *
+import hydralit_components as hc
 
 st.set_page_config(
     page_title="BI Hackathon Prototype",
@@ -15,18 +10,37 @@ st.set_page_config(
 
 ## ------------------------------ NAVBAR ------------------------------
 
-page = st_navbar(["Home", "Tentang", "Ekspor-Impor", "PDRB", "Linkage", "Simulasi Pengganda", "Model Segmentasi", "Chat"])
+st.title('TABLE IRIO BPS 2016 - ANOVATION PROTOTYPE')
+menu_data = [
+    {'id': 'home', 'label':'Home'},
+    {'id': 'about', 'label':'About'},
+    {'id': 'pdrb', 'label':'PDRB'},
+    {'id': 'eksim', 'label':'Ekspor-Impor'},
+    {'id': 'flbl', 'label':'Forward-Backward Linkage'},
+    {'id': 'simul', 'label':'Simulasi Pengganda'},
+    {'id': 'clust', 'label':'Model Segmentasi'},
+    {'id': 'chat', 'label':'Chatbot'}    
+]
+
+over_theme = {'txc_inactive': '#FFFFFF'}
+page = hc.nav_bar(
+    menu_definition=menu_data,
+    override_theme=over_theme,
+    hide_streamlit_markers=False,
+    sticky_nav=True, 
+    sticky_mode='pinned', 
+)
 
 ## ------------------------------ Home ------------------------------
-if page == "Home":
+if page == "home":
     st.write("Ini lagi di ", page)
     
 ## ------------------------ç------ About ------------------------------
-if page == "Tentang":
+if page == "about":
     st.write("Ini lagi di ", page)
     
 ## ------------------------------ Eks-Imp ------------------------------
-if page == "Ekspor-Impor":
+if page == "eksim":
     st.title('Alur Ekspor Impor Antar Provinsi')
     eks0a, eks_col1a, eks_col1b, eks0b, eks_col1c = st.columns([2,2,3,1,3])
     with eks_col1a:
@@ -80,7 +94,7 @@ if page == "Ekspor-Impor":
         st.plotly_chart(fig4b, use_container_width = True)
         
 ## ------------------------------ PDRB ------------------------------
-if page == "PDRB":
+if page == "pdrb":
     st.write("Ini lagi di ", page)
     st.dataframe(df_pdrb, use_container_width=True)
     opt_skala = st.toggle("Skala Provinsi")
@@ -165,7 +179,7 @@ if page == "PDRB":
         
 
 ## ------------------------------ Linkage ------------------------------
-if page == "Linkage":
+if page == "flbl":
     st.write("Ini lagi di ", page)
 
 
@@ -195,7 +209,7 @@ if page == "Linkage":
         st.plotly_chart(lin_fig2b)
     
 ## ------------------------------ Multiplier ------------------------------
-if page == "Simulasi Pengganda":
+if page == "simul":
     st.write("Ini lagi di ", page)
     # AgGrid(base_irio,
     #        gridOptions = GridOptionsBuilder.from_dataframe(base_irio).build())
@@ -250,8 +264,8 @@ if page == "Simulasi Pengganda":
             
 ## ------------------------------ Segmentation Model --------------------------------------
 
-if page == 'Model Segmentasi':
-    st.title('Pemodelan Clustering untuk Segmentasi Provinsi')
+if page == 'clust':
+    st.header('Pemodelan Clustering untuk Segmentasi Provinsi')
     seg_opt = st.multiselect('**Tentukan Kelompok Indikator Klasterisasi:**',
                          ['Ekspor', 'Impor', 'Forward Linkage', 'Backward Linkage',
                           'PDRB Produksi', 'PDRB Pendapatan', 'PDRB Pengeluaran', 'Final Demand'])
@@ -268,11 +282,13 @@ if page == 'Model Segmentasi':
         dfs.append(dict_dfs[opt])
     try:
         df_X = dfs[0]
-        for df in dfs[1:]:
-            df_X = pd.concat([df_X, df.iloc[:, 1:]], axis=1)
+        if len(dfs) > 1:
+            for df in dfs[1:]:
+                df_X = pd.concat([df_X, df.iloc[:, 1:]], axis=1)
     except IndexError:
         st.write('Masukkan Tabel!')
     else:
+        st.dataframe(df_X)
         seg_col1, seg_col2 = st.columns([2,7])
         dfd = clusterProvince(df_X)
         fig5 = plotSpatial2(dfd)
@@ -281,7 +297,7 @@ if page == 'Model Segmentasi':
             st.dataframe(dfd, use_container_width=True)
         with seg_col2:
             if len(seg_opt)==1:
-                segs = seg_opt
+                segs = str(seg_opt[0])
             else:
                 segs = ", ".join(seg_opt[:-1]) + ', dan ' + seg_opt[-1]
             st.markdown('<div style="text-align:center"><b>Hasil Klasterisasi Provinsi berdasarkan {} </b></div>'.format(segs), unsafe_allow_html=True)
@@ -289,7 +305,7 @@ if page == 'Model Segmentasi':
 
 
 ## ------------------------------ Chatbots ------------------------------
-if page == "Chat":
+if page == "chat":
     st.write("Ini lagi di ", page)
     st.title("Ini Hanya Bot")
 

@@ -4,10 +4,12 @@ import plotly.express as px
 import plotly.graph_objects as go
 import pyreadr as pr
 from sklearn.preprocessing import StandardScaler
-from st_aggrid import AgGrid, GridOptionsBuilder
 from sklearn.cluster import KMeans
 from yellowbrick.cluster import KElbowVisualizer
-from functools import partial, reduce
+from src.agstyler import *
+from llama_index.core import VectorStoreIndex,SimpleDirectoryReader,ServiceContext
+# from llama_index.llms import openai
+from llama_index.llms.openai import OpenAI
 
 ## PDRB
 
@@ -220,8 +222,9 @@ X_E1 = pd.read_csv('data/X_E1.csv', sep=';')
 X_E2 = pd.read_csv('data/X_E2.csv', sep=';')
 
 def clusterProvince(df):
-    hasil = df['provinsi']
-    df.drop('provinsi', axis=1, inplace=True)
+    hasil = X_FD['provinsi']
+    if 'provinsi' in df.columns:
+        df.drop('provinsi', axis=1, inplace=True)
     ms = StandardScaler()
     X = pd.DataFrame(ms.fit_transform(df), columns=[df.columns])
     model = KMeans()
