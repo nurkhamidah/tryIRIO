@@ -265,18 +265,14 @@ if page == 'Model Segmentasi':
                 'Final Demand':X_FD}
     dfs = []
     for opt in seg_opt:
-        # st.dataframe(dict_dfs[opt])
         dfs.append(dict_dfs[opt])
     try:
         df_X = dfs[0]
         for df in dfs[1:]:
-            df_X = pd.merge(df_X, df, left_on='provinsi', right_on='provinsi', how='outer')
+            df_X = pd.concat([df_X, df.iloc[:, 1:]], axis=1)
     except IndexError:
         st.write('Masukkan Tabel!')
     else:
-        # st.dataframe(df_X)
-    # merge = partial(pd.merge, on=['provinsi'], how='outer')
-    # df_X = reduce(merge, dfs)
         seg_col1, seg_col2 = st.columns([2,7])
         dfd = clusterProvince(df_X)
         fig5 = plotSpatial2(dfd)
@@ -284,7 +280,11 @@ if page == 'Model Segmentasi':
             dfd.columns = ['Provinsi', 'Cluster']
             st.dataframe(dfd, use_container_width=True)
         with seg_col2:
-            st.markdown('<div style="text-align:center"><b>Hasil Klasterisasi Provinsi</b></div>', unsafe_allow_html=True)
+            if len(seg_opt)==1:
+                segs = seg_opt
+            else:
+                segs = ", ".join(seg_opt[:-1]) + ', dan ' + seg_opt[-1]
+            st.markdown('<div style="text-align:center"><b>Hasil Klasterisasi Provinsi berdasarkan {} </b></div>'.format(segs), unsafe_allow_html=True)
             st.plotly_chart(fig5, use_container_width=True)
 
 
