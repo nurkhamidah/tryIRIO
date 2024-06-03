@@ -265,21 +265,27 @@ if page == 'Model Segmentasi':
                 'Final Demand':X_FD}
     dfs = []
     for opt in seg_opt:
+        # st.dataframe(dict_dfs[opt])
         dfs.append(dict_dfs[opt])
-    df_X = dfs[0]
-    for df in dfs[1:]:
-        df_X = pd.merge(df_X, df, on='provinsi', how='outer')
+    try:
+        df_X = dfs[0]
+        for df in dfs[1:]:
+            df_X = pd.merge(df_X, df, left_on='provinsi', right_on='provinsi', how='outer')
+    except IndexError:
+        st.write('Masukkan Tabel!')
+    else:
+        # st.dataframe(df_X)
     # merge = partial(pd.merge, on=['provinsi'], how='outer')
     # df_X = reduce(merge, dfs)
-    seg_col1, seg_col2 = st.columns([2,7])
-    dfd = clusterProvince(df_X)
-    fig5 = plotSpatial2(dfd)
-    with seg_col1:
-        dfd.columns = ['Provinsi', 'Cluster']
-        st.dataframe(dfd, use_container_width=True)
-    with seg_col2:
-        st.markdown('<div style="text-align:center"><b>Hasil Klasterisasi Provinsi</b></div>', unsafe_allow_html=True)
-        st.plotly_chart(fig5, use_container_width=True)
+        seg_col1, seg_col2 = st.columns([2,7])
+        dfd = clusterProvince(df_X)
+        fig5 = plotSpatial2(dfd)
+        with seg_col1:
+            dfd.columns = ['Provinsi', 'Cluster']
+            st.dataframe(dfd, use_container_width=True)
+        with seg_col2:
+            st.markdown('<div style="text-align:center"><b>Hasil Klasterisasi Provinsi</b></div>', unsafe_allow_html=True)
+            st.plotly_chart(fig5, use_container_width=True)
 
 
 ## ------------------------------ Chatbots ------------------------------
