@@ -206,3 +206,15 @@ base_irio = pr.read_r("data/sim_irio.rds")[None]
 out_irio = pr.read_r("data/out_irio.rds")[None]
 
 opt_ind = base_irio['nama_ind'].unique()
+
+def simulationIRIO(df):
+    for i in range(len(df)):
+        for j in range(len(base_irio)):
+            if((df.iloc[i, 'nama_prov'] == base_irio[j, 'nama_prov']) and (df.iloc[i, 'nama_ind'] == base_irio.iloc[j, 'nama_ind'])):
+                base_irio.iloc[j, 'target'] == df.iloc[i, 'target']
+    fd_sim = (base_irio['target']/100+1) * base_irio['final_demand']
+    out_sim = np.matmul(np.array(leontif.iloc[:, 1:]), np.array(fd_sim))
+    pdrb_sim = out_sim * out_irio['prdb_prop']
+    tot_awal = (base_irio['nilai_jt'].sum()/1000000).round(3)
+    tot_akhir = (pdrb_sim.sum()/1000000).round(3)
+    return(tot_awal, tot_akhir)

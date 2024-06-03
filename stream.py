@@ -27,7 +27,7 @@ if page == "Tentang":
     
 ## ------------------------------ Eks-Imp ------------------------------
 if page == "Ekspor-Impor":
-    st.write("Ini lagi di ", page)
+    st.title('Alur Ekspor Impor Antar Provinsi')
     eks0a, eks_col1a, eks_col1b, eks0b, eks_col1c = st.columns([2,2,3,1,3])
     with eks_col1a:
         eks_fil1 = st.radio('**Pilih Kriteria**', ['Industri', 'Provinsi'])
@@ -39,7 +39,7 @@ if page == "Ekspor-Impor":
     with eks_col1c:
         eks_fil3 = st.radio('**Pilih Jenis Transaksi:**', ["Ekspor antar Provinsi", "Impor antar Provinsi", "Net Ekspor"])
     data_eks = filterTableEksim(crit=eks_fil1, crit2=eks_fil2, jenis=eks_fil3)
-    with st.expander('**Tabel Ekspor Impor**', expanded=True):
+    with st.expander('**Tabel {} {} Berdasarkan {}**'.format(eks_fil3, eks_fil2, eks_fil1), expanded=True):
         st.dataframe(data_eks, use_container_width=True, height=600)
     
     dat3 = makeTableEksImp(crit=eks_fil1, crit2=eks_fil2, jenis=eks_fil3)
@@ -57,12 +57,12 @@ if page == "Ekspor-Impor":
         '**PERDAGANGAN ANTAR PROVINSI**'
         nil_eks = get_total_eksim(crit = eks_fil1, crit2 = eks_fil2, data_eksim=df_eksim)[0]['nilai_mil']
         nil_imp = get_total_eksim(crit = eks_fil1, crit2 = eks_fil2, data_eksim=df_eksim)[1]['nilai_mil']
-        st.metric('**Nilai Ekspor:**', 'Rp {} Miliar'.format(nil_eks.round(2)))
-        st.metric('**Nilai Impor:**', 'Rp {} Miliar'.format(nil_imp.round(2)))
+        st.metric('**Nilai Ekspor:**', 'Rp {} T'.format((nil_eks/1000).round(2)))
+        st.metric('**Nilai Impor:**', 'Rp {} T'.format((nil_imp/1000).round(2)))
         if nil_imp > nil_eks:
-            st.metric('**Defisit:**', 'Rp {} Miliar'.format((nil_imp - nil_eks).round(2)))
+            st.metric('**Defisit:**', 'Rp {} T'.format(((nil_imp - nil_eks)/1000).round(2)))
         else:
-            st.metric('**Surplus:**', 'Rp {} Miliar'.format((nil_eks - nil_imp).round(2)))
+            st.metric('**Surplus:**', 'Rp {} T'.format(((nil_eks - nil_imp)/1000).round(2)))
             
     eks_col3a, eks_col3b = st.columns([1,1])
     eks_col4a, eks_col4b, eks_col4c = st.columns([1,1,1])
@@ -70,9 +70,11 @@ if page == "Ekspor-Impor":
     with eks_col4b:
         eks_slid = st.slider('**Masukkan Banyak Provinsi yang Ditampilkan**', 1, len(df_4a))
     with eks_col3a:
+        st.markdown('<div style="text-align:center"><b>Visualisasi {} {} dengan {} Teratas</b></div>'.format(eks_slid, eks_fil1, eks_fil3), unsafe_allow_html=True)
         fig4a = makeBarChart(df_4a.head(eks_slid), colx = 'kode_prov', coly = 'nilai_mil')
         st.plotly_chart(fig4a, use_container_width = True)
     with eks_col3b:
+        st.markdown('<div style="text-align:center"><b>Visualisasi {} {} dengan {} Terbawah</b></div>'.format(eks_slid, eks_fil1, eks_fil3), unsafe_allow_html=True)
         df_4b = makeTableEksImp(crit = eks_fil1, crit2 = eks_fil2, jenis=eks_fil3).sort_values(['nilai_mil'], ascending = True)
         fig4b = makeBarChart(df_4b.head(eks_slid), colx = 'kode_prov', coly = 'nilai_mil')
         st.plotly_chart(fig4b, use_container_width = True)
@@ -235,7 +237,8 @@ if page == "Simulasi Pengganda":
         max_height=500
     )
     data2 = data['data']
-    updated_data = data2[(data2['target'] != 0) & (data2['target'].apply(lambda x: isinstance(x, int)))]
+    updated_data = data2[data2['target'] != 0]
+    
     sim_base, sim_sim = simulationIRIO(updated_data)
     
     with sim_col1c:
