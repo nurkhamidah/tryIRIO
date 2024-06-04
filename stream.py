@@ -3,14 +3,15 @@ from data import *
 import hydralit_components as hc
 
 st.set_page_config(
-    page_title="BI Hackathon Prototype",
+    page_title="ANOVAtion Prototype",
     page_icon="💸",
     layout='wide',
 )
 
 ## ------------------------------ NAVBAR ------------------------------
 
-st.title('TABLE IRIO BPS 2016 - ANOVATION PROTOTYPE')
+st.markdown('<h1 style="text-align:center"><b>TABLE IRIO BPS 2016 - ANOVAtion PROTOTYPE</b></h1>', unsafe_allow_html=True)
+
 menu_data = [
     {'id': 'home', 'label':'Home'},
     {'id': 'about', 'label':'About'},
