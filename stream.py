@@ -309,76 +309,8 @@ if page == 'clust':
 if page == "chat":
     st.write("Ini lagi di ", page)
     st.title("Ini Hanya Bot")
-
-## ------------------ RANDOM ANSWER
-#     import random
-#     import time
-
-#     def response_generator():
-#         response = random.choice(
-#             [
-#                 "Halo, ada yang bisa dibantu?",
-#                 "Saya siap membantu Anda",
-#                 "Layanan hari ini tutup.",
-#             ]
-#         )
-#         for word in response.split():
-#             yield word + " "
-#             time.sleep(0.05)
-
-#     if "messages" not in st.session_state:
-#         st.session_state.messages = []
-
-#     for message in st.session_state.messages:
-#         with st.chat_message(message["role"]):
-#             st.markdown(message["content"])
-
-#     if prompt := st.chat_input("What is up?"):
-#         st.session_state.messages.append({"role": "user", "content": prompt})
-#         with st.chat_message("user"):
-#             st.markdown(prompt)
-#         with st.chat_message("assistant"):
-#             response = st.write_stream(response_generator())
-#         st.session_state.messages.append({"role": "assistant", "content": response})
-
-    ## ------------ WITH OPENAI
-    # from openai import OpenAI
-
-    # client = OpenAI(api_key = st.secrets['OPENAI_4'])
     
-    # if "messages" not in st.session_state.keys(): 
-    #     st.session_state.messages = [
-    #     {"role": "assistant", "content": "Ask me a question!"}
-    #     ]
-
-    # if "openai_model" not in st.session_state:
-    #     st.session_state["openai_model"] = "gpt-3.5-turbo"
-
-    # if "messages" not in st.session_state:
-    #     st.session_state.messages = []
-
-    # for message in st.session_state.messages:
-    #     with st.chat_message(message["role"]):
-    #         st.markdown(message["content"])
-
-    # if prompt := st.chat_input("What is up?"):
-    #     st.session_state.messages.append({"role": "user", "content": prompt})
-    #     with st.chat_message("user"):
-    #         st.markdown(prompt)
-
-    #     with st.chat_message("assistant"):
-    #         stream = client.chat.completions.create(
-    #             model=st.session_state["openai_model"],
-    #             messages=[
-    #                 {"role": m["role"], "content": m["content"]}
-    #                 for m in st.session_state.messages
-    #             ],
-    #             stream=True,
-    #         )
-    #         response = st.write_stream(stream)
-    #     st.session_state.messages.append({"role": "assistant", "content": response})
-    
-    api_key = OpenAI(api_key = st.secrets['OPENAI_4'])
+    api_key = OpenAI(api_key = st.secrets['OPENAI_API_KEY'])
     @st.cache_resource(show_spinner=False)
     def load_data():
         with st.spinner(text="Loading and indexing the Streamlit docs – hang tight! This should take 1-2 minutes."):
@@ -390,14 +322,21 @@ if page == "chat":
 
     index = load_data()
     chat_engine = index.as_chat_engine(chat_mode="condense_question", verbose=True)
-    if prompt := st.chat_input("Your question"):
-        st.session_state.messages.append({"role": "user", "content": prompt})
 
+    # Initialize chat history
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # Display chat messages from history on app rerun
     for message in st.session_state.messages: 
         with st.chat_message(message["role"]):
             st.write(message["content"])
+
+    if prompt := st.chat_input("Silakan input keyword tentang hasil analisis table IRIO..."):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+                st.markdown(prompt)
             
-    if st.session_state.messages[-1]["role"] != "assistant":
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 response = chat_engine.chat(prompt)
