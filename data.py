@@ -277,7 +277,7 @@ opt_ind = base_irio['nama_ind'].unique()
 def simulationIRIO(df):
     for i in range(len(df)):
         for j in range(len(base_irio)):
-            if((df.iloc[i, 'nama_prov'] == base_irio[j, 'nama_prov']) and (df.iloc[i, 'nama_ind'] == base_irio.iloc[j, 'nama_ind'])):
+            if((df.iloc[i, 'nama_prov'] == base_irio.iloc[j, 'nama_prov']) and (df.iloc[i, 'nama_ind'] == base_irio.iloc[j, 'nama_ind'])):
                 base_irio.iloc[j, 'target'] == df.iloc[i, 'target']
     fd_sim = (base_irio['target']/100+1) * base_irio['final_demand']
     out_sim = np.matmul(np.array(leontif.iloc[:, 1:]), np.array(fd_sim))

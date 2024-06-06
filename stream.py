@@ -249,8 +249,8 @@ if page == "simul":
         fit_columns=True,
         selection='multiple',  # or 'single', or None
         use_checkbox='True',  # or False by default
-        max_height=500
-    )
+        max_height=500)
+    
     data2 = data['data']
     updated_data = data2[data2['target'] != 0]
     
@@ -265,8 +265,9 @@ if page == "simul":
             
 ## ------------------------------ Segmentation Model --------------------------------------
 
-if page == 'clust':
-    st.header('Pemodelan Clustering untuk Segmentasi Provinsi')
+if page == 'clust2': ##jgn didelete
+    st.header('Analisis Klaster 34 Provinsi di Indonesia dari Berbagai Sektor')
+    
     seg_opt = st.multiselect('**Tentukan Kelompok Indikator Klasterisasi:**',
                          ['Ekspor', 'Impor', 'Forward Linkage', 'Backward Linkage',
                           'PDRB Produksi', 'PDRB Pendapatan', 'PDRB Pengeluaran', 'Final Demand'])
